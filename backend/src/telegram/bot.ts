@@ -62,7 +62,8 @@ const BTN_MY_ID = "🆔 My ID";
 const QUICK_BUTTON_LABELS = new Set([BTN_MY_TASKS, BTN_MY_ID]);
 
 const DASHBOARD_URL =
-  process.env.DASHBOARD_URL?.trim() || "https://nemsime.github.io/chemkarumel/";
+  process.env.DASHBOARD_URL?.trim() ||
+  "https://nemsime.github.io/omni-task-system/";
 
 type InlineButton =
   | { text: string; callback_data: string }
@@ -74,6 +75,12 @@ function dashboardLink(telegramId: number | string): string | null {
   if (!DASHBOARD_URL) return null;
   try {
     const url = new URL(DASHBOARD_URL);
+    // GitHub Pages project sites need the trailing slash on the directory
+    // path or the slash-less form 301-redirects to the user-level site
+    // (showing the profile README instead of our SPA).
+    if (!url.pathname.endsWith("/")) {
+      url.pathname = `${url.pathname}/`;
+    }
     url.searchParams.set("tg", String(telegramId));
     return url.toString();
   } catch {

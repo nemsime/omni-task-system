@@ -27,5 +27,7 @@ services:
         sync: false
       - key: CORS_ORIGIN
         value: https://nemsime.github.io
+      - key: DASHBOARD_URL
+        value: https://nemsime.github.io/omni-task-system/
       - key: ENABLE_VOICE_WORKER
         value: true
