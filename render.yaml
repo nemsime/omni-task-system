@@ -1,0 +1,31 @@
+# Render Blueprint for the free-tier-friendly deployment.
+#
+# This repo can also run as split Docker services, but the cheapest practical
+# setup is one web service that starts the API, Socket.IO, Telegram webhook,
+# and voice worker in the same backend process. Postgres and Redis are external
+# managed services.
+
+services:
+  - type: web
+    name: chemkarumel-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: BOT_TOKEN
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        value: https://nemsime.github.io
+      - key: ENABLE_VOICE_WORKER
+        value: true
