@@ -65,7 +65,7 @@ Each service has its own `package.json`. Run from each folder:
 
 ```bash
 # backend
-cd backend && npm install && cp .env .env  # set DATABASE_URL, REDIS_URL, BOT_TOKEN, OPENAI_API_KEY
+cd backend && npm install && cp ../.env.example .env  # set DATABASE_URL, REDIS_URL, BOT_TOKEN, OPENAI_API_KEY
 npm run dev
 
 # worker

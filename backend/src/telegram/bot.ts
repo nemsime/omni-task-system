@@ -438,23 +438,27 @@ export function setupTelegramBot(app: Express) {
   return {
     async start() {
       const baseUrl = publicBaseUrl();
+      const polling = !baseUrl || process.env.TELEGRAM_POLLING === "true";
 
-      if (baseUrl && process.env.TELEGRAM_POLLING !== "true") {
-        const webhookUrl = `${baseUrl}${WEBHOOK_PATH}`;
-        await bot.telegram.setWebhook(webhookUrl);
-        console.log(`Telegram webhook set: ${webhookUrl}`);
-      } else {
-        await bot.launch();
-        console.log("Telegram bot started in polling mode");
-      }
-
-      // Register the / command menu so commands are discoverable in the
-      // Telegram UI. Failure here shouldn't crash the bot startup.
+      // Register the / command menu before launch — bot.launch() in polling
+      // mode returns a promise that only resolves when the bot stops, so any
+      // setup that runs after `await bot.launch()` would never execute.
       try {
         await bot.telegram.setMyCommands(BOT_COMMANDS);
         console.log("Telegram commands registered");
       } catch (err: any) {
         console.error("setMyCommands failed:", err?.message);
+      }
+
+      if (polling) {
+        bot.launch().catch((err) => {
+          console.error("Telegram bot polling stopped:", err?.message);
+        });
+        console.log("Telegram bot started in polling mode");
+      } else {
+        const webhookUrl = `${baseUrl}${WEBHOOK_PATH}`;
+        await bot.telegram.setWebhook(webhookUrl);
+        console.log(`Telegram webhook set: ${webhookUrl}`);
       }
     },
   };

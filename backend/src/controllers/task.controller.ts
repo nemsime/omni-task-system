@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { TaskService } from "../services/task.service";
-import { voiceQueue } from "../queue/voiceQueue";
 import { emitTaskCreated, emitTaskDeleted, emitTaskUpdated } from "../realtime";
 
 const ALLOWED_STATUSES = new Set(["Pending", "In Progress", "Completed"]);
@@ -103,32 +102,6 @@ export const TaskController = {
       return res.json({ ok: true, id: task.id, taskNumber: task.taskNumber });
     } catch (error) {
       console.error("DELETE TASK ERROR:", error);
-      return res.status(500).json({ error: "Internal server error" });
-    }
-  },
-
-  async voiceTask(req: Request, res: Response) {
-    try {
-      const { telegramId, fileUrl, chatId, statusMessageId } = req.body;
-
-      if (!telegramId || !fileUrl) {
-        return res.status(400).json({ error: "telegramId and fileUrl required" });
-      }
-
-      const jobOpts =
-        chatId && statusMessageId
-          ? { jobId: `voice:${chatId}:${statusMessageId}` }
-          : undefined;
-
-      await voiceQueue.add(
-        "voice",
-        { telegramId, fileUrl, chatId, statusMessageId },
-        jobOpts
-      );
-
-      return res.json({ ok: true });
-    } catch (error) {
-      console.error("VOICE TASK ERROR:", error);
       return res.status(500).json({ error: "Internal server error" });
     }
   },
