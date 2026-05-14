@@ -46,6 +46,18 @@ jobs:
           # If unset, the app falls back to http://localhost:5000.
           VITE_API_URL: ${{ vars.VITE_API_URL }}
 
+      - name: Debug — list dist contents
+        run: |
+          echo "::group::frontend/dist tree"
+          ls -laR dist || echo "NO DIST DIRECTORY"
+          echo "::endgroup::"
+          echo "::group::frontend/dist/index.html"
+          cat dist/index.html || echo "NO index.html"
+          echo "::endgroup::"
+          echo "::group::dist size"
+          du -sh dist || true
+          echo "::endgroup::"
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/dist
